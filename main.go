@@ -17,7 +17,7 @@ import (
 
 type Response interface {
 	printInfo()
-	parse(http.Response) (Response, error)
+	parseRequest(http.Response) (Response, error)
 }
 
 var Api = "https://api.exchangeratesapi.io/"
@@ -76,8 +76,8 @@ func main() {
 	if cmd == "latest" {
 		var r ResponseLatest
 		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
-		httpReq, err := request(req)
-		output, err := r.parse(*httpReq)
+		httpReq, err := sendRequest(req)
+		output, err := r.parseRequest(*httpReq)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -87,8 +87,8 @@ func main() {
 	if cmd == "history" {
 		var r ResponseHistory
 		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
-		httpReq, err := request(req)
-		output, err := r.parse(*httpReq)
+		httpReq, err := sendRequest(req)
+		output, err := r.parseRequest(*httpReq)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -199,12 +199,12 @@ func generateRequest(command, base, start, end, currency string) (string, error)
 	return "", errors.New("Unexpected request. Please try again")
 }
 
-func request(req string) (*http.Response, error) {
+func sendRequest(req string) (*http.Response, error) {
 	resp, err := http.Get(req)
 	return resp, err
 }
 
-func (r ResponseHistory) parse(resp http.Response) (Response, error) {
+func (r ResponseHistory) parseRequest(resp http.Response) (Response, error) {
 	var responseHistory ResponseHistory
 	var errr error
 
@@ -220,7 +220,7 @@ func (r ResponseHistory) parse(resp http.Response) (Response, error) {
 	return responseHistory, errr
 }
 
-func (r ResponseLatest) parse(resp http.Response) (Response, error) {
+func (r ResponseLatest) parseRequest(resp http.Response) (Response, error) {
 	var responseLatest ResponseLatest
 	var errr error
 

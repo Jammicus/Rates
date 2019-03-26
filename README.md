@@ -17,27 +17,27 @@
 
 // Changing base currency
 
-./rates latest --base=GBP
+./rates --base=GBP latest
 
 // Returning only specified currencies
 
-./rates latest --currency=GBP,USD,EUR
+./rates  --currency=GBP,USD,EUR latest
 
 ```
 
 ### Historical Rates
 
 ```
-./rates history --start=yyyy-mm-dd --end=yyyy-mm-dd
-./rates history --start 2012-12-12 --end=2012-12-15
+./rates --start=yyyy-mm-dd --end=yyyy-mm-dd history
+./rates  --start 2012-12-12 --end=2012-12-15 history
 
 //changing base currency
 
-./rates history --start 2012-12-12 --end=2012-12-15 -base=USD
+./rates --start 2012-12-12 --end=2012-12-15 -base=USD history
 
 // Returning specified currencies
 
-./rates history --start 2012-12-12 --end=2012-12-15 -currency=USD,EUR
+./rates --start 2012-12-12 --end=2012-12-15 -currency=USD,EUR history
 ```
 
 ### List of Currencies
