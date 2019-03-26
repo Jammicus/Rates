@@ -18,42 +18,9 @@ var Api = "https://api.exchangeratesapi.io/"
 var BaseFlag, StartFlag, EndFlag, CurrencyFlag *string
 
 type Response struct {
-	Base  string `json:"base"`
-	Rates Rates  `json:"rates"`
-	Date  string `json:"date"`
-}
-
-type Rates struct {
-	USD float64 `json:"USD"`
-	JPY float64 `json:"JPY"`
-	BGN float64 `json:"BGN"`
-	CZK float64 `json:"CZK"`
-	DKK float64 `json:"DKK"`
-	GPB float64 `json:"GPB"`
-	HUF float64 `json:"HUF"`
-	PLN float64 `json:"PLN"`
-	RON float64 `json:"RON"`
-	SEK float64 `json:"SEK"`
-	CHF float64 `json:"CHF"`
-	ISK float64 `json:"ISK"`
-	NOK float64 `json:"NOK"`
-	HRK float64 `json:"HRK"`
-	RUB float64 `json:"RUB"`
-	TRY float64 `json:"TRY"`
-	BRL float64 `json:"BRL"`
-	CAD float64 `json:"CAD"`
-	CNY float64 `json:"CNY"`
-	HKD float64 `json:"HKD"`
-	IDR float64 `json:"IDR"`
-	ILS float64 `json:"ILS"`
-	INR float64 `json:"INR"`
-	MXN float64 `json:"MXN"`
-	MYR float64 `json:"MYR"`
-	NZD float64 `json:"NZD"`
-	PHP float64 `json:"PHP"`
-	SGD float64 `json:"SGD"`
-	THB float64 `json:"THB"`
-	ZAR float64 `json:"ZAR"`
+	Base  string             `json:"base"`
+	Rates map[string]float64 `json:"rates"`
+	Date  string             `json:"date"`
 }
 
 func main() {
@@ -71,15 +38,16 @@ func main() {
 
 	var r Response
 	json.Unmarshal(output, &r)
-
 	printResponce(r)
 }
 
 func printResponce(r Response) {
 	fmt.Println("Date:", r.Date)
 	fmt.Println("Base Currency:", r.Base)
-	fmt.Println("Rates:")
-	fmt.Printf("%+v\n", r.Rates)
+
+	for k, v := range r.Rates {
+		fmt.Printf("Currency %s = %f\n", k, v)
+	}
 
 }
 
