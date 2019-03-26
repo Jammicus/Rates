@@ -8,47 +8,124 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
+type Response interface {
+	printInfo()
+	parse(http.Response) (Response, error)
+}
+
 var Api = "https://api.exchangeratesapi.io/"
 var BaseFlag, StartFlag, EndFlag, CurrencyFlag *string
 
-type Response struct {
+type ResponseLatest struct {
 	Base  string             `json:"base"`
 	Rates map[string]float64 `json:"rates"`
 	Date  string             `json:"date"`
 }
 
-func main() {
-	setLogging()
-	req, err := generateRequest(flag.Arg(0), *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	httpReq, err := request(req)
-	output, err := parse(*httpReq)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var r Response
-	json.Unmarshal(output, &r)
-	printResponce(r)
+type ResponseHistory struct {
+	Base  string           `json:"base"`
+	Rates map[string]Rates `json:"rates"`
 }
 
-func printResponce(r Response) {
-	fmt.Println("Date:", r.Date)
+type Rates struct {
+	IDR float64 `json:"IDR"`
+	DKK float64 `json:"DDK"`
+	INR float64 `json:"INR"`
+	HRK float64 `json:"HRK"`
+	KRW float64 `json:"KRW"`
+	RUB float64 `json:"RUB"`
+	ZAR float64 `json:"ZAR"`
+	HUF float64 `json:"HUF"`
+	MXN float64 `json:"MXN"`
+	ISK float64 `json:"ISK"`
+	CNY float64 `json:"CNY"`
+	USD float64 `json:"USD"`
+	TRY float64 `json:"TRY"`
+	CZK float64 `json:"CZK"`
+	ILS float64 `json:"ILS"`
+	JPY float64 `json:"JPY"`
+	AUD float64 `json:"AUD"`
+	MYR float64 `json:"MYR"`
+	BRL float64 `json:"BRL"`
+	RON float64 `json:"RON"`
+	PHP float64 `json:"PHP"`
+	CHF float64 `json:"CHF"`
+	SGD float64 `json:"SGD"`
+	BGN float64 `json:"BGN"`
+	NZD float64 `json:"NZD"`
+	THB float64 `json:"THB"`
+	NOK float64 `json:"NOK"`
+	GBP float64 `json:"GBP"`
+	PLN float64 `json:"PLN"`
+	SEK float64 `json:"SEK"`
+	CAD float64 `json:"CAD"`
+	HKD float64 `json:"HKD"`
+}
+
+func main() {
+	setLogging()
+	cmd := flag.Arg(0)
+
+	if cmd == "latest" {
+		var r ResponseLatest
+		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
+		httpReq, err := request(req)
+		output, err := r.parse(*httpReq)
+		if err != nil {
+			log.Fatal(err)
+		}
+		printResponce(output)
+	}
+
+	if cmd == "history" {
+		var r ResponseHistory
+		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
+		httpReq, err := request(req)
+		output, err := r.parse(*httpReq)
+		if err != nil {
+			log.Fatal(err)
+		}
+		printResponce(output)
+
+	}
+}
+
+// Think about how to remove reflection
+func (r ResponseHistory) printInfo() {
 	fmt.Println("Base Currency:", r.Base)
 
 	for k, v := range r.Rates {
+		fmt.Println("")
+		fmt.Println("Date:", k)
+		fmt.Println("")
+		elem := reflect.ValueOf(&v).Elem()
+
+		for i := 0; i < elem.NumField(); i++ {
+			fmt.Printf("Currency %s = %v\n",
+				elem.Type().Field(i).Name, elem.Field(i).Interface())
+		}
+	}
+}
+
+func (r ResponseLatest) printInfo() {
+	fmt.Println("Base Currency:", r.Base)
+	fmt.Println("")
+	fmt.Println("Date:", r.Date)
+	fmt.Println("")
+	for k, v := range r.Rates {
 		fmt.Printf("Currency %s = %f\n", k, v)
 	}
+}
 
+func printResponce(r Response) {
+	r.printInfo()
 }
 
 func setLogging() {
@@ -85,7 +162,6 @@ func generateRequest(command, base, start, end, currency string) (string, error)
 	}
 	if end != "" && start == "" {
 		return "", errors.New("Please provide the start flag when doing a time query")
-
 	}
 
 	if command == "latest" && base == "" && currency == "" {
@@ -128,14 +204,31 @@ func request(req string) (*http.Response, error) {
 	return resp, err
 }
 
-func parse(resp http.Response) ([]byte, error) {
-	var responseObject Response
+func (r ResponseHistory) parse(resp http.Response) (Response, error) {
+	var responseHistory ResponseHistory
+	var errr error
 
 	responseData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return responseHistory, err
 	}
 
-	errr := json.Unmarshal(responseData, &responseObject)
-	return responseData, errr
+	// Improve this.
+
+	errr = json.Unmarshal(responseData, &responseHistory)
+
+	return responseHistory, errr
+}
+
+func (r ResponseLatest) parse(resp http.Response) (Response, error) {
+	var responseLatest ResponseLatest
+	var errr error
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return responseLatest, err
+	}
+
+	errr = json.Unmarshal(responseData, &responseLatest)
+	return responseLatest, errr
 }
