@@ -76,7 +76,13 @@ func main() {
 	if cmd == "latest" {
 		var r ResponseLatest
 		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
+		if err != nil {
+			log.Fatal(err)
+		}
 		httpReq, err := sendRequest(req)
+		if err != nil {
+			log.Fatal(err)
+		}
 		output, err := r.parseRequest(*httpReq)
 		if err != nil {
 			log.Fatal(err)
@@ -87,13 +93,18 @@ func main() {
 	if cmd == "history" {
 		var r ResponseHistory
 		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
+		if err != nil {
+			log.Fatal(err)
+		}
 		httpReq, err := sendRequest(req)
+		if err != nil {
+			log.Fatal(err)
+		}
 		output, err := r.parseRequest(*httpReq)
 		if err != nil {
 			log.Fatal(err)
 		}
 		printResponce(output)
-
 	}
 }
 
@@ -136,7 +147,7 @@ func setLogging() {
 }
 
 func usage() {
-	log.Errorln("Invalid flag, please use one of the following:")
+	log.Error("Invalid flag, please use one of the following:")
 	flag.PrintDefaults()
 	os.Exit(2)
 }
