@@ -16,8 +16,8 @@ import (
 )
 
 type Response interface {
-	printInfo()
 	parseRequest(http.Response) (Response, error)
+	printInfo()
 }
 
 var Api = "https://api.exchangeratesapi.io/"
@@ -25,8 +25,8 @@ var BaseFlag, StartFlag, EndFlag, CurrencyFlag *string
 
 type ResponseLatest struct {
 	Base  string             `json:"base"`
-	Rates map[string]float64 `json:"rates"`
 	Date  string             `json:"date"`
+	Rates map[string]float64 `json:"rates"`
 }
 
 type ResponseHistory struct {
@@ -35,38 +35,38 @@ type ResponseHistory struct {
 }
 
 type Rates struct {
-	IDR float64 `json:"IDR"`
-	DKK float64 `json:"DDK"`
-	INR float64 `json:"INR"`
-	HRK float64 `json:"HRK"`
-	KRW float64 `json:"KRW"`
-	RUB float64 `json:"RUB"`
-	ZAR float64 `json:"ZAR"`
-	HUF float64 `json:"HUF"`
-	MXN float64 `json:"MXN"`
-	ISK float64 `json:"ISK"`
-	CNY float64 `json:"CNY"`
-	USD float64 `json:"USD"`
-	TRY float64 `json:"TRY"`
-	CZK float64 `json:"CZK"`
-	ILS float64 `json:"ILS"`
-	JPY float64 `json:"JPY"`
 	AUD float64 `json:"AUD"`
-	MYR float64 `json:"MYR"`
-	BRL float64 `json:"BRL"`
-	RON float64 `json:"RON"`
-	PHP float64 `json:"PHP"`
-	CHF float64 `json:"CHF"`
-	SGD float64 `json:"SGD"`
 	BGN float64 `json:"BGN"`
-	NZD float64 `json:"NZD"`
-	THB float64 `json:"THB"`
-	NOK float64 `json:"NOK"`
-	GBP float64 `json:"GBP"`
-	PLN float64 `json:"PLN"`
-	SEK float64 `json:"SEK"`
+	BRL float64 `json:"BRL"`
 	CAD float64 `json:"CAD"`
+	CHF float64 `json:"CHF"`
+	CNY float64 `json:"CNY"`
+	CZK float64 `json:"CZK"`
+	DKK float64 `json:"DDK"`
+	GBP float64 `json:"GBP"`
 	HKD float64 `json:"HKD"`
+	HRK float64 `json:"HRK"`
+	HUF float64 `json:"HUF"`
+	IDR float64 `json:"IDR"`
+	ILS float64 `json:"ILS"`
+	INR float64 `json:"INR"`
+	ISK float64 `json:"ISK"`
+	JPY float64 `json:"JPY"`
+	KRW float64 `json:"KRW"`
+	MXN float64 `json:"MXN"`
+	MYR float64 `json:"MYR"`
+	NOK float64 `json:"NOK"`
+	NZD float64 `json:"NZD"`
+	PHP float64 `json:"PHP"`
+	PLN float64 `json:"PLN"`
+	RON float64 `json:"RON"`
+	RUB float64 `json:"RUB"`
+	SEK float64 `json:"SEK"`
+	SGD float64 `json:"SGD"`
+	THB float64 `json:"THB"`
+	TRY float64 `json:"TRY"`
+	USD float64 `json:"USD"`
+	ZAR float64 `json:"ZAR"`
 }
 
 func main() {
@@ -108,31 +108,14 @@ func main() {
 	}
 }
 
-// Think about how to remove reflection
-func (r ResponseHistory) printInfo() {
-	fmt.Println("Base Currency:", r.Base)
-
-	for k, v := range r.Rates {
-		fmt.Println("")
-		fmt.Println("Date:", k)
-		fmt.Println("")
-		elem := reflect.ValueOf(&v).Elem()
-
-		for i := 0; i < elem.NumField(); i++ {
-			fmt.Printf("Currency %s = %v\n",
-				elem.Type().Field(i).Name, elem.Field(i).Interface())
-		}
-	}
-}
-
-func (r ResponseLatest) printInfo() {
-	fmt.Println("Base Currency:", r.Base)
-	fmt.Println("")
-	fmt.Println("Date:", r.Date)
-	fmt.Println("")
-	for k, v := range r.Rates {
-		fmt.Printf("Currency %s = %f\n", k, v)
-	}
+// Has to be flags then command, due to rules of the flag pakage.
+func init() {
+	BaseFlag = flag.String("base", "", "Specifies the base currency to use")
+	StartFlag = flag.String("start", "", "Specifies the start date to use for a time series")
+	EndFlag = flag.String("end", "", "Specifies the end date to use for a time series")
+	CurrencyFlag = flag.String("currency", "", "Specifies a comma seperated list of currencies to be used")
+	flag.Usage = usage
+	flag.Parse()
 }
 
 func printResponce(r Response) {
@@ -150,16 +133,6 @@ func usage() {
 	log.Error("Invalid flag, please use one of the following:")
 	flag.PrintDefaults()
 	os.Exit(2)
-}
-
-// Has to be flags then command, due to rules of the flag pakage.
-func init() {
-	BaseFlag = flag.String("base", "", "Specifies the base currency to use")
-	StartFlag = flag.String("start", "", "Specifies the start date to use for a time series")
-	EndFlag = flag.String("end", "", "Specifies the end date to use for a time series")
-	CurrencyFlag = flag.String("currency", "", "Specifies a comma seperated list of currencies to be used")
-	flag.Usage = usage
-	flag.Parse()
 }
 
 func generateRequest(command, base, start, end, currency string) (string, error) {
@@ -242,4 +215,31 @@ func (r ResponseLatest) parseRequest(resp http.Response) (Response, error) {
 
 	errr = json.Unmarshal(responseData, &responseLatest)
 	return responseLatest, errr
+}
+
+// Think about how to remove reflection
+func (r ResponseHistory) printInfo() {
+	fmt.Println("Base Currency:", r.Base)
+
+	for k, v := range r.Rates {
+		fmt.Println("")
+		fmt.Println("Date:", k)
+		fmt.Println("")
+		elem := reflect.ValueOf(&v).Elem()
+
+		for i := 0; i < elem.NumField(); i++ {
+			fmt.Printf("Currency %s = %v\n",
+				elem.Type().Field(i).Name, elem.Field(i).Interface())
+		}
+	}
+}
+
+func (r ResponseLatest) printInfo() {
+	fmt.Println("Base Currency:", r.Base)
+	fmt.Println("")
+	fmt.Println("Date:", r.Date)
+	fmt.Println("")
+	for k, v := range r.Rates {
+		fmt.Printf("Currency %s = %f\n", k, v)
+	}
 }
