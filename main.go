@@ -34,6 +34,8 @@ type ResponseLatest struct {
 type ResponseHistory struct {
 	Base  string           `json:"base"`
 	Rates map[string]Rates `json:"rates"`
+	End   string           `json:"end_at"`
+	Start string           `json:"start_at"`
 }
 
 type Rates struct {
@@ -44,7 +46,7 @@ type Rates struct {
 	CHF float64 `json:"CHF"`
 	CNY float64 `json:"CNY"`
 	CZK float64 `json:"CZK"`
-	DKK float64 `json:"DDK"`
+	DKK float64 `json:"DKK"`
 	GBP float64 `json:"GBP"`
 	HKD float64 `json:"HKD"`
 	HRK float64 `json:"HRK"`
@@ -197,7 +199,7 @@ func (r ResponseHistory) parseRequest(resp http.Response) (Response, error) {
 	// Improve this.
 
 	errr = json.Unmarshal(responseData, &responseHistory)
-
+	fmt.Println(responseHistory)
 	return responseHistory, errr
 }
 
