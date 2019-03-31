@@ -18,6 +18,8 @@ import (
 type Response interface {
 	parseRequest(http.Response) (Response, error)
 	printInfo()
+	returnRates() interface{}
+	returnBase() string
 }
 
 var Api = "https://api.exchangeratesapi.io/"
@@ -72,40 +74,35 @@ type Rates struct {
 func main() {
 	setLogging()
 	cmd := flag.Arg(0)
+	r := determineResponseType(cmd)
 
+	req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	httpReq, err := sendRequest(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	output, err := r.parseRequest(*httpReq)
+	if err != nil {
+		log.Fatal(err)
+	}
+	printResponce(output)
+
+}
+
+func determineResponseType(cmd string) Response {
 	if cmd == "latest" {
 		var r ResponseLatest
-		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
-		if err != nil {
-			log.Fatal(err)
-		}
-		httpReq, err := sendRequest(req)
-		if err != nil {
-			log.Fatal(err)
-		}
-		output, err := r.parseRequest(*httpReq)
-		if err != nil {
-			log.Fatal(err)
-		}
-		printResponce(output)
+		return r
 	}
-
 	if cmd == "history" {
 		var r ResponseHistory
-		req, err := generateRequest(cmd, *BaseFlag, *StartFlag, *EndFlag, *CurrencyFlag)
-		if err != nil {
-			log.Fatal(err)
-		}
-		httpReq, err := sendRequest(req)
-		if err != nil {
-			log.Fatal(err)
-		}
-		output, err := r.parseRequest(*httpReq)
-		if err != nil {
-			log.Fatal(err)
-		}
-		printResponce(output)
+		return r
 	}
+	return nil
+
 }
 
 // Has to be flags then command, due to rules of the flag pakage.
@@ -209,6 +206,7 @@ func (r ResponseLatest) parseRequest(resp http.Response) (Response, error) {
 	var errr error
 
 	responseData, err := ioutil.ReadAll(resp.Body)
+
 	if err != nil {
 		return responseLatest, err
 	}
@@ -242,4 +240,20 @@ func (r ResponseLatest) printInfo() {
 	for k, v := range r.Rates {
 		fmt.Printf("Currency %s = %f\n", k, v)
 	}
+}
+
+func (r ResponseLatest) returnBase() string {
+	return r.Base
+}
+
+func (r ResponseLatest) returnRates() interface{} {
+	return r.Rates
+}
+
+func (r ResponseHistory) returnBase() string {
+	return r.Base
+}
+
+func (r ResponseHistory) returnRates() interface{} {
+	return r.Rates
 }
