@@ -12,7 +12,6 @@
 ### Latest Rates
 
 ```
-
 ./rates latest
 
 // Changing base currency
@@ -22,7 +21,6 @@
 // Returning only specified currencies
 
 ./rates  --currency=GBP,USD,EUR latest
-
 ```
 
 ### Historical Rates
@@ -44,38 +42,37 @@
 
 Please note that some currencies may return 0 if there is no current data provided for them. 
 
-* IDR 
-* DKK 
-* INR 
-* HRK 
-* KRW 
-* RUB 
-* ZAR 
-* HUF 
-* MXN 
-* ISK 
-* CNY 
-* USD 
-* TRY 
-* CZK 
-* ILS 
-* JPY 
-* AUD 
-* MYR 
-* BRL 
-* RON 
-* PHP 
-* CHF 
-* SGD 
-* BGN 
-* NZD 
-* THB 
-* NOK 
-* GBP 
-* PLN 
-* SEK 
-* CAD 
-* HKD 
+ * AUD
+ * BGN
+ * BRL
+ * CAD
+ * CHF
+ * CNY
+ * CZK
+ * DKK
+ * GBP
+ * HKD
+ * HRK
+ * HUF
+ * IDR
+ * ILS
+ * INR
+ * ISK
+ * JPY
+ * KRW
+ * MXN
+ * MYR
+ * NOK
+ * NZD
+ * PHP
+ * PLN
+ * RON
+ * RUB
+ * SEK
+ * SGD
+ * THB
+ * TRY
+ * USD
 
 
 ## Building
