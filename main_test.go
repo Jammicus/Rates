@@ -139,7 +139,7 @@ func TestLatestParseRequest(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		x := output.returnRates()
+		x := output.rates()
 		y := x.(map[string]float64)
 		if !reflect.DeepEqual(y, test.expectedStruct.Rates) {
 			t.Error("Expected: ", y, "\n", "But got: ", test.expectedStruct.Rates)
@@ -150,7 +150,9 @@ func TestLatestParseRequest(t *testing.T) {
 func TestHistoryParseRequest(t *testing.T) {
 
 	var history = ResponseHistory{
-		Base: "EUR",
+		Base:  "EUR",
+		Start: "2018-01-03",
+		End:   "2018-01-01",
 		Rates: map[string]Rates{
 			"2018-01-03": Rates{
 				BGN: 1.9558,
@@ -221,11 +223,88 @@ func TestHistoryParseRequest(t *testing.T) {
 		},
 	}
 
+	var historyBase = ResponseHistory{
+		Base:  "USD",
+		Start: "2018-01-03",
+		End:   "2018-01-01",
+		Rates: map[string]Rates{
+			"2018-01-03": Rates{
+				BGN: 1.626715462,
+				NZD: 1.409132496,
+				ILS: 3.459036846,
+				RUB: 57.470015803,
+				CAD: 1.251517924,
+				USD: 1,
+				PHP: 49.8943691258,
+				CHF: 0.9761290859,
+				AUD: 1.2758047076,
+				JPY: 112.2598353156,
+				TRY: 3.7680279464,
+				HKD: 7.8171005573,
+				MYR: 4.014971305,
+				HRK: 6.1889711387,
+				CZK: 21.2467770107,
+				IDR: 13455.0029110871,
+				DKK: 6.191632704,
+				NOK: 8.1044664393,
+				HUF: 257.2486068369,
+				GBP: 0.7372535973,
+				MXN: 19.4489728021,
+				THB: 32.5293188056,
+				ZAR: 12.3800216252,
+				BRL: 3.2634117941,
+				SGD: 1.3297845796,
+				PLN: 3.4643599767,
+				INR: 63.4995425435,
+				KRW: 1065.7822506862,
+				RON: 3.8555269068,
+				CNY: 6.5015387175,
+				SEK: 8.1718373118,
+				EUR: 0.8317391666,
+			},
+			"2018-01-02": Rates{
+				BGN: 1.6210526316,
+				NZD: 1.4053046001,
+				ILS: 3.4556983009,
+				RUB: 57.2876916701,
+				CAD: 1.2538748446,
+				USD: 1,
+				PHP: 49.8400331538,
+				CHF: 0.9712391214,
+				AUD: 1.2774968918,
+				JPY: 112.1840033154,
+				TRY: 3.7579776212,
+				HKD: 7.8145876502,
+				MYR: 4.0194778284,
+				HRK: 6.1864898467,
+				CZK: 21.1305428927,
+				IDR: 13481.9975134687,
+				DKK: 6.1696643183,
+				NOK: 8.1017820141,
+				HUF: 255.772896809,
+				GBP: 0.7372813925,
+				MXN: 19.5220886863,
+				THB: 32.4202237878,
+				ZAR: 12.349772068,
+				BRL: 3.2742644012,
+				SGD: 1.3287194364,
+				PLN: 3.4507252383,
+				INR: 63.4898466639,
+				KRW: 1062.23787816,
+				RON: 3.8561956071,
+				CNY: 6.4929962702,
+				SEK: 8.1461251554,
+				EUR: 0.828843763,
+			},
+		},
+	}
+
 	var testcases = []struct {
 		filePath       string
 		expectedStruct ResponseHistory
 	}{
 		{"testdata/historicalRange.json", history},
+		{"testdata/historicalRangeBaseUSD.json", historyBase},
 	}
 
 	for _, test := range testcases {
@@ -235,7 +314,7 @@ func TestHistoryParseRequest(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		x := output.returnRates()
+		x := output.rates()
 		y := x.(map[string]Rates)
 		if !reflect.DeepEqual(y, test.expectedStruct.Rates) {
 			t.Error("Expected: ", y, "\n", "But got: ", test.expectedStruct.Rates)

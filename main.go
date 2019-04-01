@@ -16,10 +16,11 @@ import (
 )
 
 type Response interface {
+	base() string
+	date() map[string]string
 	parseRequest(http.Response) (Response, error)
 	printInfo()
-	returnRates() interface{}
-	returnBase() string
+	rates() interface{}
 }
 
 var Api = "https://api.exchangeratesapi.io/"
@@ -47,6 +48,7 @@ type Rates struct {
 	CNY float64 `json:"CNY"`
 	CZK float64 `json:"CZK"`
 	DKK float64 `json:"DKK"`
+	EUR float64 `json:"EUR"`
 	GBP float64 `json:"GBP"`
 	HKD float64 `json:"HKD"`
 	HRK float64 `json:"HRK"`
@@ -199,7 +201,6 @@ func (r ResponseHistory) parseRequest(resp http.Response) (Response, error) {
 	// Improve this.
 
 	errr = json.Unmarshal(responseData, &responseHistory)
-	fmt.Println(responseHistory)
 	return responseHistory, errr
 }
 
@@ -219,11 +220,13 @@ func (r ResponseLatest) parseRequest(resp http.Response) (Response, error) {
 
 // Think about how to remove reflection
 func (r ResponseHistory) printInfo() {
-	fmt.Println("Base Currency:", r.Base)
+	fmt.Println("Base Currency:", r.base())
+	fmt.Println("Start Date:", r.date()["start"])
+	fmt.Println("End Date:", r.date()["end"])
 
-	for k, v := range r.Rates {
+	for k, v := range r.rates().(map[string]Rates) {
 		fmt.Println("")
-		fmt.Println("Date:", k)
+		fmt.Println("Rates on the date of:", k)
 		fmt.Println("")
 		elem := reflect.ValueOf(&v).Elem()
 
@@ -235,27 +238,40 @@ func (r ResponseHistory) printInfo() {
 }
 
 func (r ResponseLatest) printInfo() {
-	fmt.Println("Base Currency:", r.Base)
+	fmt.Println("Base Currency:", r.base())
 	fmt.Println("")
-	fmt.Println("Date:", r.Date)
+	fmt.Println("Date:", r.date()["date"])
 	fmt.Println("")
-	for k, v := range r.Rates {
+	for k, v := range r.rates().(map[string]float64) {
 		fmt.Printf("Currency %s = %f\n", k, v)
 	}
 }
 
-func (r ResponseLatest) returnBase() string {
+func (r ResponseLatest) base() string {
 	return r.Base
 }
 
-func (r ResponseLatest) returnRates() interface{} {
+func (r ResponseLatest) rates() interface{} {
 	return r.Rates
 }
 
-func (r ResponseHistory) returnBase() string {
+func (r ResponseLatest) date() map[string]string {
+	m := make(map[string]string)
+	m["date"] = r.Date
+	return m
+}
+
+func (r ResponseHistory) base() string {
 	return r.Base
 }
 
-func (r ResponseHistory) returnRates() interface{} {
+func (r ResponseHistory) rates() interface{} {
 	return r.Rates
+}
+
+func (r ResponseHistory) date() map[string]string {
+	m := make(map[string]string)
+	m["start"] = r.Start
+	m["end"] = r.End
+	return m
 }
