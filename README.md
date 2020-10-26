@@ -1,5 +1,7 @@
 # Rates
 
+![Build and Test](https://github.com/Jammicus/Rates/workflows/Build%20and%20Test/badge.svg)
+
 * Go program that queries https://exchangeratesapi.io/ to get historical and current currency rates
 
 ## Requirements
