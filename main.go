@@ -76,6 +76,7 @@ type Rates struct {
 }
 
 func main() {
+	setFlags()
 	setLogging()
 	cmd := flag.Arg(0)
 	r := determineResponseType(cmd)
@@ -110,7 +111,7 @@ func determineResponseType(cmd string) Response {
 }
 
 // Has to be flags then command, due to rules of the flag pakage.
-func init() {
+func setFlags() {
 	BaseFlag = flag.String("base", "", "Specifies the base currency to use")
 	StartFlag = flag.String("start", "", "Specifies the start date to use for a time series")
 	EndFlag = flag.String("end", "", "Specifies the end date to use for a time series")
